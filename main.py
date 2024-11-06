@@ -26,7 +26,6 @@ def convert_address(address):
     address = int(str(address)[1:]) - 1
     return address
 
-
 print("Connecting to server")
 #establishing client connection
 try:
@@ -43,5 +42,40 @@ except ModbusException as exc:
 
 try:
     print("Reponse to test request is: \n" + str(result.registers))
+    #other way to print out a reponse
+    #for reg in result:
+    #    print(reg)
 except NameError:
     print("No response from the device")
+
+
+
+
+###Functions###
+def read_voltage_AC(client):
+    voltage_L1 = client.read_input_registers(address = convert_address(31359), slave=device_address)
+    print ("L1 phase voltages:")
+    print(voltage_L1.registers)
+    
+    voltage_L2 = client.read_input_registers(address = convert_address(31361), slave=device_address)
+    print ("L2 phase voltages:")
+    print(voltage_L2.registers)
+
+    voltage_l3 = client.read_input_registers(address = convert_address(31363), slave=device_address)
+    print ("L3 phase voltages:")
+    print(voltage_L3.registers)
+
+def read_production_total_today(client):
+    e_today = client.read_input_registers(address = convert_address(31303), slave=device_address, count=2)
+    print ("E-today:")
+    print(e_today.registers)
+
+def read_device_state(client):
+    state = client.read_input_registers(address = convert_address(31309), slave=device_address)
+    print ("State of the device: ")
+    print(state.registers)
+
+def read_active_power(client):
+    active_power = client.read_input_registers(address = convert_address(31371), slave=device_address, count=2)
+    print ("Current active power: ")
+    print(active_power.registers)
