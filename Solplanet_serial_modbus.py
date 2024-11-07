@@ -367,11 +367,32 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         e_today = self.read_input_registers(address = convert_address(31643), slave=self.slave, count=2)
         return float(e_today.registers[1]) * 0.1
 
+
+###Functions for decoding addresses, strings, etc
+
     def convert_address(address):
         """Returns the real value of the provided register, please input the exact register address from the Solplanet Modbus documentation"""
         address = int(str(address)[1:]) - 1
         return address
 
-    def decode_string(string_input):
-        #TODO make function to decode reponses into regular strings
-        pass
+    def decode_string(s_input):
+        """Decoded the 16 bit values of reponses into strings you can test the functionality with commented code"""
+        
+        #test_input = [8224,8224,16723,22321,12363,11596,21536,8224]
+        #print(decode_string(test_input))
+        #run the aboce code in you main file (or were you want to test this)
+
+        s_input = into_binary(s_input)
+        string_result = ""
+        for element in s_input:
+            temp1 = element[:8]
+            temp2 = element[8:]
+            string_result = string_result + chr(int(temp1,2)) + chr(int(temp2,2))
+            
+        return string_result
+    
+    def into_binary(input_array):
+        for i in range(0,len(input_array)):
+            input_array[i] = bin(input_array[i])[2:]
+            input_array[i] = ('0' * (16 - len(input_array[i]))) + input_array[i]
+        return input_array
