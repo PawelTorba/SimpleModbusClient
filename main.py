@@ -1,4 +1,5 @@
-import Solplanet_serial_modbus
+from Solplanet_serial_modbus import Solplanet_Serial_Modbus
+from pymodbus import ModbusException
 #Dependencies: pymodbus, pyserial
 
 #serial port of your device
@@ -11,19 +12,19 @@ communication_port = '/dev/ttyUSB0'
 
 #address of slave device
 slave = 3
-
-print("Connecting to server.")
 #establishing client connection
-try:
-    #client = ModbusSerialClient(port = s_port, baudrate = baud_rate, bytesize=byte_size, parity = parity, stopbits = stop_bits)
-    client = Solplanet_serial_modbus(device_address = slave, s_port = communication_port)
-except ModbusException as exc:
-    print("Error connecting to server, error: " + str(exc))
-    exit(1)
-print("Connection successful.")
+
+#client = ModbusSerialClient(port = s_port, baudrate = baud_rate, bytesize=byte_size, parity = parity, stopbits = stop_bits)
+client = Solplanet_Serial_Modbus(device_address = slave, s_port = communication_port)
 
 try: 
-    #function calls here
+    #print(client.read_device_state())
+    #function calls in here
     pass
 except ModbusException as exc:
     print("Error with reading input registers, error: " + str(exc))
+
+
+###STRING CONVERSION TESTING
+#test_input = [8224,8224,16723,22321,12363,11596,21536,8224]
+#print(client.decode_string(test_input))
