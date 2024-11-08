@@ -11,11 +11,10 @@ communication_port = '/dev/ttyUSB0'
 #program should be run with sudo permissions (at least on arch linux derivatives)
 
 #address of slave device
-slave = 3
 #establishing client connection
 
 #client = ModbusSerialClient(port = s_port, baudrate = baud_rate, bytesize=byte_size, parity = parity, stopbits = stop_bits)
-client = Solplanet_Serial_Modbus(device_address = slave, s_port = communication_port)
+client = Solplanet_Serial_Modbus(s_port = communication_port)
 
 try: 
     print(client.read_e_today())
