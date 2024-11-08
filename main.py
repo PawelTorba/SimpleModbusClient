@@ -18,7 +18,14 @@ slave = 3
 client = Solplanet_Serial_Modbus(device_address = slave, s_port = communication_port)
 
 try: 
-    print(client.read_device_state())
+    print(client.read_e_today())
+    print(client.read_e_total())
+    print(client.read_reactive_power())
+    print(client.read_eps_load_voltage())
+    print(client.read_e_consumption_total_eps())
+
+    #jeżeli zwracana jest pusta lista to oznacza, że urządzenie nie obsługuje tego rejestru
+
     #function calls in here
     pass
 except ModbusException as exc:

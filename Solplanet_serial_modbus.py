@@ -14,7 +14,7 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
 ######INPUT REGISTERS######
     def read_device_type(self):
         device_type = self.send_request_ir(31001) 
-        return device_type
+        return self.decode_string(device_type)
         #TODO add function to decode string value
 
     def read_slave_modbus_address(self):
@@ -58,8 +58,7 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
 
     def read_brand_name(self):
         name = self.send_request_ir(31065,7) 
-        return name
-        #TODO add function to decode string value
+        return self.decode_string(name)
 
     def read_grid_rated_voltage(self):
         rated_vol = self.send_request_ir(31301)
@@ -84,7 +83,7 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
 
     def read_device_state(self):
         state = self.send_request_ir(31309)
-        return float(state)
+        return float(state[0])
 
     def connect_time(self):
         con_time = self.send_request_ir(31310)
@@ -122,6 +121,7 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         """Returns a dictionary with MPPT1 TO 5 voltage values. Values are already converter to 'real'"""
         #TODO: CHANGE THE WAY VALUES ARE CONVERTER TO "REAL" AND ASSIGNED TO DICT
         dc_voltages = {"PV1": 0, "PV2": 0, "PV3": 0, "PV4": 0, "PV5": 0}
+        #PV4 AND PV5 RETURN VALUES 655.XX ????? TODO FIGURE OUT WHY
        
         dc_voltages["PV1"] = self.send_request_ir(31319)
         dc_voltages["PV2"] = self.send_request_ir(31321)
@@ -157,7 +157,7 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
 
     def read_string_current(self):
         dc_current = {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0, "S6": 0, "S7": 0, "S8": 0, "S9": 0, "S10": 0}
-
+        #{'S1': 89.60000000000001, 'S2': 1.4000000000000001, 'S3': 201.60000000000002} TODO figure out why
         dc_current["S1"] = self.send_request_ir(31339)
         dc_current["S2"] = self.send_request_ir(31340)
         dc_current["S3"] = self.send_request_ir(31341)
@@ -187,12 +187,12 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         ac_voltages = {"L1": 0, "L2": 0, "L3": 0}
         
         ac_voltages["L1"] = self.send_request_ir(31359)
-        ac_Voltages["L2"] = self.send_request_ir(31361)
+        ac_voltages["L2"] = self.send_request_ir(31361)
         ac_voltages["L3"] = self.send_request_ir(31363)
 
-        voltages["L1"] = float(ac_voltages["L1"][0]) * 0.1
-        voltages["L2"] = float(ac_voltages["L2"][0]) * 0.1
-        voltages["L3"] = float(ac_voltages["L3"][0]) * 0.1
+        ac_voltages["L1"] = float(ac_voltages["L1"][0]) * 0.1
+        ac_voltages["L2"] = float(ac_voltages["L2"][0]) * 0.1
+        ac_voltages["L3"] = float(ac_voltages["L3"][0]) * 0.1
 
         return ac_voltages
 
@@ -322,9 +322,11 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         limit = self.send_request_ir(31625)
         return float(limit[0]) * 0.1
 
+###dodać zabezpiecznie przed pustą listą
+
     def read_battery_e_charge_today(self):
         e_today = self.send_request_ir(31626,2)
-        return float(e_today[1]) * 1 
+        return float(e_today[0]) * 1 
 
     def read_battery_e_discharge_today(self):
         e_today = self.send_request_ir(31628,2)
