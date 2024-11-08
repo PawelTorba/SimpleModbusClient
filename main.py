@@ -18,7 +18,7 @@ slave = 3
 client = Solplanet_Serial_Modbus(device_address = slave, s_port = communication_port)
 
 try: 
-    #print(client.read_device_state())
+    print(client.read_device_state())
     #function calls in here
     pass
 except ModbusException as exc:
