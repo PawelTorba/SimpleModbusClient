@@ -91,7 +91,7 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
 
     def read_current_safety_version(self, device_address = 3):
         current_safe_ver = self.send_request_ir(31044,7, slave = device_address) 
-        return self.decode_string(current_soft_ver)
+        return self.decode_string(current_safe_ver)
     
     def read_manufacturer_name(self, device_address = 3):
         name = self.send_request_ir(31057,7, slave = device_address) 
