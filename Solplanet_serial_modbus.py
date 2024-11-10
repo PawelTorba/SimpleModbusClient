@@ -14,12 +14,12 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
 
     def read_serial_number(self, device_address = 3):
         serial_number = self.send_request_ir(31003,16, slave = device_address) 
-        return self.decode_string(serial_number)
+        return self.decode_string(serial_number).strip()
 
     def read_machine_type(self, device_address = 3): 
         """Returns a string with inverter model"""
         model_name = self.send_request_ir(31019,8, slave = device_address) 
-        return self.decode_string(model_name)
+        return self.decode_string(model_name).strip()
 
     def read_current_grid_code(self, device_address = 3):
         grid_code = self.send_request_ir(31027, slave = device_address) 
@@ -87,15 +87,15 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         
     def read_current_software_version(self, device_address = 3):
         current_soft_ver = self.send_request_ir(31030,7, slave = device_address) 
-        return self.decode_string(current_soft_ver)
+        return self.decode_string(current_soft_ver).strip()
     
     def read_current_slave_version(self, device_address = 3):
         current_soft_ver = self.send_request_ir(31037,7, slave = device_address) 
-        return self.decode_string(current_soft_ver)
+        return self.decode_string(current_soft_ver).strip()
 
     def read_current_safety_version(self, device_address = 3):
         current_safe_ver = self.send_request_ir(31044,7, slave = device_address) 
-        return self.decode_string(current_safe_ver)
+        return self.decode_string(current_safe_ver).strip()
     
     def read_manufacturer_name(self, device_address = 3):
         name = self.send_request_ir(31057,7, slave = device_address) 
@@ -128,11 +128,11 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
 
     def read_grid_rated_voltage(self, device_address = 3):
         rated_vol = self.send_request_ir(31301, slave = device_address)
-        return float(rated_vol[0]) * 0.1
+        return round((float(rated_vol[0]) * 0.1), 2)
 
     def read_grid_rated_frequency(self, device_address = 3):
         rated_freq = self.send_request_ir(31302, slave = device_address)
-        return float(rated_freq[0]) * 0.01
+        return round((float(rated_freq[0]) * 0.01), 2)
 
     def read_e_today(self, device_address = 3):
         e_today = self.send_request_ir(31303, 2, slave = device_address)
@@ -141,11 +141,11 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
     def read_e_total(self, device_address = 3):
         """Returns floating point number representing production in kWh"""
         e_total = self.send_request_ir(31305,2, slave = device_address)
-        return float(e_total[1]) * 0.1      
+        return round((float(e_total[1]) * 0.1), 2)      
 
     def read_h_total(self, device_address = 3):
         h_total = self.send_request_ir(31307,2, slave = device_address)
-        return float(h_total[1]) * 1 
+        return round((float(h_total[1]) * 1), 2) 
 
     def read_device_state(self, device_address = 3):
         state = self.send_request_ir(31309, slave = device_address)
@@ -163,7 +163,7 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
 
     def read_internal_temp(self, device_address = 3):
         temp = self.send_request_ir(31311, slave = device_address)
-        return float(temp[0]) * 0.1 
+        return round((float(temp[0]) * 0.1), 2)
     
     def read_inverter_phase_temp(self, device_address = 3):
         phase_temps = {"L1": 0, "L2": 0, "L3":0}      
@@ -187,7 +187,7 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
 
     def read_bus_voltage(self, device_address = 3):
         bus_vol = self.send_request_ir(31317)
-        return float(bus_vol[0]) * 0.1
+        return round((float(bus_vol[0]) * 0.1), 2)
 
     def read_dc_voltage(self, device_address = 3):
         """Returns a list with MPPT1 TO 10 voltage values. Values are already converter to 'real'"""
@@ -195,21 +195,21 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         #PV4 AND PV5 RETURN VALUES 655.XX ????? TODO FIGURE OUT WHY
         for i in range(31319,31339,2):
             temp = self.send_request_ir(i, slave = device_address)
-            dc_voltages.append(float(temp[0])*0.1)
+            dc_voltages.append(round((float(temp[0])*0.1), 2))
         return dc_voltages
 
     def read_dc_current(self, device_address = 3):
         dc_current = []
         for i in range(31320,31340,2):
             temp = self.send_request_ir(i, slave = device_address)
-            dc_current.append(float(temp[0])*0.01)
+            dc_current.append(round((float(temp[0])*0.01), 2))
         return dc_current 
 
     def read_string_current(self, device_address = 3):
         dc_current = []
         for i in range(31339,31359,1):
             temp = self.send_request_ir(i, slave = device_address)
-            dc_current.append(float(temp[0])*0.1)
+            dc_current.append(round((float(temp[0])*0.1), 2))
         return dc_current    
 
     def read_ac_voltage(self, device_address = 3):
@@ -220,9 +220,9 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         ac_voltages["L2"] = self.send_request_ir(31361, slave = device_address)
         ac_voltages["L3"] = self.send_request_ir(31363, slave = device_address)
 
-        ac_voltages["L1"] = float(ac_voltages["L1"][0]) * 0.1
-        ac_voltages["L2"] = float(ac_voltages["L2"][0]) * 0.1
-        ac_voltages["L3"] = float(ac_voltages["L3"][0]) * 0.1
+        ac_voltages["L1"] = round((float(ac_voltages["L1"][0]) * 0.1), 2)
+        ac_voltages["L2"] = round((float(ac_voltages["L2"][0]) * 0.1), 2)
+        ac_voltages["L3"] = round((float(ac_voltages["L3"][0]) * 0.1), 2)
 
         return ac_voltages
 
@@ -233,9 +233,9 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         ac_current["L2"] = self.send_request_ir(31362, slave = device_address)
         ac_current["L3"] = self.send_request_ir(31364, slave = device_address)
 
-        ac_current["L1"] = float(ac_current["L1"][0]) * 0.1
-        ac_current["L2"] = float(ac_current["L2"][0]) * 0.1
-        ac_current["L3"] = float(ac_current["L3"][0]) * 0.1
+        ac_current["L1"] = round((float(ac_current["L1"][0]) * 0.1), 2)
+        ac_current["L2"] = round((float(ac_current["L2"][0]) * 0.1), 2)
+        ac_current["L3"] = round((float(ac_current["L3"][0]) * 0.1), 2)
 
         return ac_current
 
@@ -259,21 +259,21 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
     def read_apparent_power(self, device_address = 3):
         #TODO CHECK THE FIRST VALUE IN THE RETURN REGISTERS MOST LIKELY CAN BE OMMITED
         apparent_power = self.send_request_ir(31369,2, slave = device_address)
-        return int(apparent_power[1]) * 1.0
+        return round(float((apparent_power[1]) * 1.0), 2)
 
     def read_active_power(self, device_address = 3):
         #TODO CHECK THE FIRST VALUE IN THE RETURN REGISTERS MOST LIKELY CAN BE OMMITED
         active_power = self.send_request_ir(31371,2, slave = device_address)
-        return int(active_power[1]) * 1.0
+        return round((float(active_power[1]) * 1.0) ,2)
 
     def read_reactive_power(self, device_address = 3):
         #TODO CHECK THE FIRST VALUE IN THE RETURN REGISTERS MOST LIKELY CAN BE OMMITED
         reactive_power = self.send_request_ir(31373,2, slave = device_address)
-        return int(reactive_power[1]) * 1.0
+        return round((float(reactive_power[1]) * 1.0), 2)
 
     def read_power_factor(self, device_address = 3):
         power_factor = self.send_request_ir(31375, slave = device_address)
-        return float(power_factor[0]) * 0.01
+        return round((float(power_factor[0]) * 0.01), 2)
 
     def read_error_message(self, device_address = 3):
         error_message = self.send_request_ir(31378, slave = device_address)
