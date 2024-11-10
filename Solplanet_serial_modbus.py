@@ -86,7 +86,11 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         return int(rated_power[1]) * 1.0
         
     def read_current_software_version(self, device_address = 3):
-        current_soft_ver = self.send_request_ir(31030,8, slave = device_address) 
+        current_soft_ver = self.send_request_ir(31030,7, slave = device_address) 
+        return self.decode_string(current_soft_ver)
+    
+    def read_current_slave_version(self, device_address = 3):
+        current_soft_ver = self.send_request_ir(31037,7, slave = device_address) 
         return self.decode_string(current_soft_ver)
 
     def read_current_safety_version(self, device_address = 3):
@@ -145,7 +149,13 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
 
     def read_device_state(self, device_address = 3):
         state = self.send_request_ir(31309, slave = device_address)
-        return float(state[0])
+        state = int(state[0])
+        if state == 0: return "Wait"
+        elif state == 1: return "Normal"
+        elif state == 2: return "Fault"
+        elif state == 4: return "Checking"
+        
+        else: return "Error while reading state"
 
     def connect_time(self, device_address = 3):
         con_time = self.send_request_ir(31310, slave = device_address)
