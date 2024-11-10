@@ -190,69 +190,27 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         return float(bus_vol[0]) * 0.1
 
     def read_dc_voltage(self, device_address = 3):
-        """Returns a dictionary with MPPT1 TO 5 voltage values. Values are already converter to 'real'"""
-        #TODO: CHANGE THE WAY VALUES ARE CONVERTER TO "REAL" AND ASSIGNED TO DICT
-        dc_voltages = {"PV1": 0, "PV2": 0, "PV3": 0, "PV4": 0, "PV5": 0}
+        """Returns a list with MPPT1 TO 10 voltage values. Values are already converter to 'real'"""
+        dc_voltages = []
         #PV4 AND PV5 RETURN VALUES 655.XX ????? TODO FIGURE OUT WHY
-       
-        dc_voltages["PV1"] = self.send_request_ir(31319, slave = device_address)
-        dc_voltages["PV2"] = self.send_request_ir(31321, slave = device_address)
-        dc_voltages["PV3"] = self.send_request_ir(31323, slave = device_address)
-        dc_voltages["PV4"] = self.send_request_ir(31325, slave = device_address)
-        dc_voltages["PV5"] = self.send_request_ir(31327, slave = device_address)
-
-        dc_voltages["PV1"] = float(dc_voltages["PV1"][0]) * 0.1
-        dc_voltages["PV2"] = float(dc_voltages["PV2"][0]) * 0.1
-        dc_voltages["PV3"] = float(dc_voltages["PV3"][0]) * 0.1
-        dc_voltages["PV4"] = float(dc_voltages["PV4"][0]) * 0.1
-        dc_voltages["PV5"] = float(dc_voltages["PV5"][0]) * 0.1
-        
+        for i in range(31319,31339,2):
+            temp = self.send_request_ir(i, slave = device_address)
+            dc_voltages.append(float(temp[0])*0.1)
         return dc_voltages
 
     def read_dc_current(self, device_address = 3):
-        #TODO: CHANGE THE WAY VALUES ARE CONVERTER TO "REAL" AND ASSIGNED TO DICT
-        dc_current = {"PV1": 0, "PV2": 0, "PV3": 0, "PV4": 0, "PV5": 0}
-       
-        dc_current["PV1"] = self.send_request_ir(31320, slave = device_address)
-        dc_current["PV2"] = self.send_request_ir(31322, slave = device_address)
-        dc_current["PV3"] = self.send_request_ir(31324, slave = device_address)
-        dc_current["PV4"] = self.send_request_ir(31326, slave = device_address)
-        dc_current["PV5"] = self.send_request_ir(31328, slave = device_address)
-
-        dc_current["PV1"] = float(dc_current["PV1"][0]) * 0.01
-        dc_current["PV2"] = float(dc_current["PV2"][0]) * 0.01
-        dc_current["PV3"] = float(dc_current["PV3"][0]) * 0.01
-        dc_current["PV4"] = float(dc_current["PV4"][0]) * 0.01
-        dc_current["PV5"] = float(dc_current["PV5"][0]) * 0.01
-        
-        return dc_current     
+        dc_current = []
+        for i in range(31320,31340,2):
+            temp = self.send_request_ir(i, slave = device_address)
+            dc_current.append(float(temp[0])*0.01)
+        return dc_current 
 
     def read_string_current(self, device_address = 3):
-        dc_current = {"S1": 0, "S2": 0, "S3": 0, "S4": 0, "S5": 0, "S6": 0, "S7": 0, "S8": 0, "S9": 0, "S10": 0}
-        #{'S1': 89.60000000000001, 'S2': 1.4000000000000001, 'S3': 201.60000000000002} TODO figure out why
-        dc_current["S1"] = self.send_request_ir(31339, slave = device_address)
-        dc_current["S2"] = self.send_request_ir(31340, slave = device_address)
-        dc_current["S3"] = self.send_request_ir(31341, slave = device_address)
-        dc_current["S4"] = self.send_request_ir(31342, slave = device_address)
-        dc_current["S5"] = self.send_request_ir(31343, slave = device_address)
-        dc_current["S6"] = self.send_request_ir(31344, slave = device_address)
-        dc_current["S7"] = self.send_request_ir(31345, slave = device_address)
-        dc_current["S8"] = self.send_request_ir(31346, slave = device_address)
-        dc_current["S9"] = self.send_request_ir(31347, slave = device_address)
-        dc_current["S10"] = self.send_request_ir(31348, slave = device_address)    
-
-        dc_current["S1"] = float(dc_current["S1"][0]) * 0.1
-        dc_current["S2"] = float(dc_current["S2"][0]) * 0.1
-        dc_current["S3"] = float(dc_current["S3"][0]) * 0.1
-        dc_current["S4"] = float(dc_current["S4"][0]) * 0.1
-        dc_current["S5"] = float(dc_current["S5"][0]) * 0.1
-        dc_current["S6"] = float(dc_current["S6"][0]) * 0.1
-        dc_current["S7"] = float(dc_current["S7"][0]) * 0.1
-        dc_current["S8"] = float(dc_current["S8"][0]) * 0.1
-        dc_current["S9"] = float(dc_current["S9"][0]) * 0.1
-        dc_current["S10"] = float(dc_current["S10"][0]) * 0.1       
-
-        return dc_current
+        dc_current = []
+        for i in range(31339,31359,1):
+            temp = self.send_request_ir(i, slave = device_address)
+            dc_current.append(float(temp[0])*0.1)
+        return dc_current    
 
     def read_ac_voltage(self, device_address = 3):
         """Returns a dictionary with L1, L2 and L3 voltage values. Values are already converter to 'real'"""
@@ -342,7 +300,7 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         return float(total[1]) * 0.1
 
 #########################################################################################
-###TODO dodać zabezpiecznie przed pustą listą, falowniki zwykłe zwracają pustą wartość###
+###TODO ADD ERROR HANDLING                                                            ###
 #########################################################################################        
 
     def read_battery_comm_status(self, device_address = 3):
