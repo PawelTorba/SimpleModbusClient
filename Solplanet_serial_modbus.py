@@ -1,7 +1,9 @@
 from pymodbus.client import ModbusSerialClient, ModbusBaseClient
 
+#NOTE: NOT ALL METHODS ARE USED IN GUI VERSION, MIGHT GET ADDED LATER
+
 class Solplanet_Serial_Modbus(ModbusSerialClient):
-    def __init__(self, baud_rate = 9600, byte_size = 8, parity = "N", stop_bits = 1, s_port = ""):
+    def __init__(self, baud_rate = 9600, byte_size = 8, parity = "N", stop_bits = 1, s_port = ''):
         super().__init__(port = s_port, baudrate = baud_rate, bytesize=byte_size, parity = parity, stopbits = stop_bits)
 
     def read_device_type(self, device_address = 3):
@@ -14,12 +16,12 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
 
     def read_serial_number(self, device_address = 3):
         serial_number = self.send_request_ir(31003,16, slave = device_address) 
-        return self.decode_string(serial_number).strip()
+        return self.decode_string(serial_number)[:16]
 
     def read_machine_type(self, device_address = 3): 
         """Returns a string with inverter model"""
         model_name = self.send_request_ir(31019,8, slave = device_address) 
-        return self.decode_string(model_name).strip()
+        return self.decode_string(model_name)
 
     def read_current_grid_code(self, device_address = 3):
         grid_code = self.send_request_ir(31027, slave = device_address) 
@@ -87,15 +89,15 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         
     def read_current_software_version(self, device_address = 3):
         current_soft_ver = self.send_request_ir(31030,7, slave = device_address) 
-        return self.decode_string(current_soft_ver).strip()
+        return self.decode_string(current_soft_ver)
     
     def read_current_slave_version(self, device_address = 3):
         current_soft_ver = self.send_request_ir(31037,7, slave = device_address) 
-        return self.decode_string(current_soft_ver).strip()
+        return self.decode_string(current_soft_ver)
 
     def read_current_safety_version(self, device_address = 3):
         current_safe_ver = self.send_request_ir(31044,7, slave = device_address) 
-        return self.decode_string(current_safe_ver).strip()
+        return self.decode_string(current_safe_ver)
     
     def read_manufacturer_name(self, device_address = 3):
         name = self.send_request_ir(31057,7, slave = device_address) 
@@ -196,13 +198,24 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         for i in range(31319,31339,2):
             temp = self.send_request_ir(i, slave = device_address)
             dc_voltages.append(round((float(temp[0])*0.1), 2))
+
+        for i in range(0,len(dc_voltages)):
+            if dc_voltages[i] == 6553.5:
+                dc_voltages[i] = 0.0
+
         return dc_voltages
 
     def read_dc_current(self, device_address = 3):
+
         dc_current = []
         for i in range(31320,31340,2):
             temp = self.send_request_ir(i, slave = device_address)
             dc_current.append(round((float(temp[0])*0.01), 2))
+
+        for i in range(0,len(dc_current)):
+            if dc_current[i] == 655.35:
+                dc_current[i] = 0.0
+
         return dc_current 
 
     def read_string_current(self, device_address = 3):
@@ -210,6 +223,11 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
         for i in range(31339,31359,1):
             temp = self.send_request_ir(i, slave = device_address)
             dc_current.append(round((float(temp[0])*0.1), 2))
+
+        for i in range(0,len(dc_current)):
+            if dc_current[i] == 6553.5:
+                dc_current[i] = 0.0
+
         return dc_current    
 
     def read_ac_voltage(self, device_address = 3):
@@ -297,11 +315,7 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
     def read_pv_e_total(self, device_address = 3):
         #TODO check first register, most likely can be ommited
         total = self.send_request_ir(31605,2, slave = device_address)
-        return float(total[1]) * 0.1
-
-#########################################################################################
-###TODO ADD ERROR HANDLING                                                            ###
-#########################################################################################        
+        return float(total[1]) * 0.1 
 
     def read_battery_comm_status(self, device_address = 3):
         com_status = self.send_request_ir(31607, slave = device_address)
@@ -432,7 +446,7 @@ class Solplanet_Serial_Modbus(ModbusSerialClient):
             temp1 = element[:8]
             temp2 = element[8:]
             string_result = string_result + chr(int(temp1,2)) + chr(int(temp2,2))
-        return string_result
+        return string_result.strip()
     
     def into_binary(self, input_array):
         for i in range(0,len(input_array)):
